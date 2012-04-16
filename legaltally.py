@@ -61,6 +61,14 @@ def plus_one(increment):
     update_sign("Approved: %s Denied: %s" % (entries[0]['approved'], entries[0]['denied']));
     return redirect(url_for('show_tally'))
 
+@app.route('/reset')
+def reset():
+    g.db.execute('update tally set approved = 0, denied = 0 where id = 1')
+    g.db.commit()
+    flash('Tally Reset')
+    return redirect(url_for('show_tally'))
+
+
 ### End Web Code ###
 
 ### Serial Code ###
@@ -75,5 +83,3 @@ def update_sign(message):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
-
-
