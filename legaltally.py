@@ -19,9 +19,10 @@ app.config.from_object(__name__)
 ### DB section ###
 def init_db():
     '''Create the initial db'''
-    with app.open_resource('schema.sql') as f:
-        db.cursor().executescript(f.read())
-    db.commit()
+    with closing(connect_db()) as db:
+        with app.open_resource('schema.sql') as f:
+            db.cursor().executescript(f.read())
+        db.commit()
 
 def connect_db():
     '''Open a db connection'''
@@ -32,12 +33,12 @@ def connect_db():
 ### web code ###
 @app.before_request
 def before_request():
-    '''open a db connection before the web view is served'''
+    '''Open a db connection before the web view is served'''
     g.db = connect_db()
 
 @app.teardown_request
 def teardown_request(exception):
-    '''close the db handle after the web request is over'''
+    '''Close the db handle after the web request is over'''
     if exception:
         print exception
     g.db.close()
@@ -52,30 +53,30 @@ def not_found(error):
 @app.route('/')
 def show_tally():
     '''Show the default tally web view'''
-    cur = g.db.execute('select approved, denied from tally')
-    entries = [dict(approved=row[0], denied=row[1]) for row in cur.fetchall()]
+    cur = g.db.execute('select received, denied from tally')
+    entries = [dict(received=row[0], denied=row[1]) for row in cur.fetchall()]
     return render_template('show_tally.html', entries=entries)
 
 @app.route('/plus_one/<increment>', methods=['GET'])
 def plus_one(increment):
-    '''Increment either the approved or denied counter and update the sign'''
-    if increment == 'approved':
-        g.db.execute('update tally set approved = approved + 1 where id = 1')
+    '''Increment either the received or denied counter and update the sign'''
+    if increment == 'received':
+        g.db.execute('update tally set received = received + 1 where id = 1')
     if increment == 'denied':
         g.db.execute('update tally set denied = denied + 1 where id = 1') 
     g.db.commit()
 
     flash('Tally Updated')
-    cur = g.db.execute('select approved, denied from tally')
-    entries = [dict(approved=row[0], denied=row[1]) for row in cur.fetchall()]
+    cur = g.db.execute('select received, denied from tally')
+    entries = [dict(received=row[0], denied=row[1]) for row in cur.fetchall()]
     update_sign("Approved: %s Denied: %s" % 
-            (entries[0]['approved'], entries[0]['denied']))
+            (entries[0]['received'], entries[0]['denied']))
     return redirect(url_for('show_tally'))
 
 @app.route('/reset')
 def reset():
     '''Reset the counter and update the sign'''
-    g.db.execute('update tally set approved = 0, denied = 0 where id = 1')
+    g.db.execute('update tally set received = 0, denied = 0 where id = 1')
     g.db.commit()
     flash('Tally Reset')
     update_sign("Approved: 0 Denied: 0")
