@@ -10,7 +10,7 @@ DEBUG = True
 SECRET_KEY = 'development key'
 USERNAME = 'admin'
 PASSWORD = 'default'
-DEVICE = '/tmp/ttyUSB0'
+DEVICE = '/dev/ttyUSB0'
 BAUD_RATE = 9600
 
 app = Flask(__name__)
@@ -65,10 +65,10 @@ def plus_one(increment):
 
 ### Serial Code ###
 def update_sign(message):
-    ser = serial.Serial(DEVICE, BAUDRATE)
+    ser = serial.Serial(DEVICE, BAUD_RATE)
     ser.write('<ID01>\r\n')
     time.sleep(1)
-    ser.write('<ID01><PA><FQ><CC> %s \r\n' % message)
+    ser.write('<ID01><PA><CI><FX> %s / \r\n' % message)
     ser.close()
 
 #### End Serial Code ###
