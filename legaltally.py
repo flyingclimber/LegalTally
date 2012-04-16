@@ -1,5 +1,5 @@
 # all the imports
-import sqlite3, serial
+import sqlite3, serial, time
 from flask import Flask, request, session, g, redirect, url_for, \
      abort, render_template, flash
 from contextlib import closing
@@ -61,14 +61,15 @@ def plus_one(increment):
 
 ### Serial Code ###
 def update_sign():
-    serial = serial.Serial('/dev/tty.PL2303-000013FA', 9600)
-    serial.write('<ID01>')
-    serial.write('<ID01><PA><FQ><CC>Approved: X Denied: X')
-    seriial.close()
+    ser = serial.Serial('/dev/ttyUSB0', 9600)
+    ser.write('<ID01>\r\n')
+    time.sleep(1)
+    ser.write('<ID01><PA><FQ><CC>Approved: X Denied: X\r\n')
+    ser.close()
 
 #### End Serial Code ###
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')
 
 
