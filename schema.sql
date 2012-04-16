@@ -4,4 +4,4 @@ create table tally (
     approved integer,
     denied integer
 );
-insert into tally values (1,0,0)
+insert into tally values (1,0,0);
