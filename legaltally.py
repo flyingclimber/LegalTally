@@ -66,6 +66,7 @@ def reset():
     g.db.execute('update tally set approved = 0, denied = 0 where id = 1')
     g.db.commit()
     flash('Tally Reset')
+    update_sign("Approved: 0 Denied: 0")
     return redirect(url_for('show_tally'))
 
 
