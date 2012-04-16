@@ -10,25 +10,25 @@ DEBUG = True
 SECRET_KEY = 'development key'
 USERNAME = 'admin'
 PASSWORD = 'default'
+DEVICE = '/tmp/ttyUSB0'
+BAUD_RATE = 9600
 
-# create our little application :)
 app = Flask(__name__)
 app.config.from_object(__name__)
 
+### DB section ###
 def connect_db():
     return sqlite3.connect(app.config['DATABASE'])
 
-@app.errorhandler(404)
-def not_found(error):
-    return render_template('error.html'), 404
-
-### DB section ###
 def init_db():
     with closing(connect_db()) as db:
         with app.open_resource('schema.sql') as f:
             db.cursor().executescript(f.read())
         db.commit()
 
+### End DB Section ###
+
+### Web Code ###
 @app.before_request
 def before_request():
     g.db = connect_db()
@@ -37,9 +37,10 @@ def before_request():
 def teardown_request(exception):
     g.db.close()
 
-### End DB Section ###
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('error.html'), 404
 
-### Web Code ###
 @app.route('/')
 def show_tally():
     cur = g.db.execute('select approved, denied from tally')
@@ -57,14 +58,14 @@ def plus_one(increment):
     flash('Tally Updated')
     cur = g.db.execute('select approved, denied from tally')
     entries = [dict(approved=row[0], denied=row[1]) for row in cur.fetchall()]
-    update_sign("Approved: %s Denied: %s" % ( entries[0]['approved'], entries[0]['denied']) );
+    update_sign("Approved: %s Denied: %s" % (entries[0]['approved'], entries[0]['denied']));
     return redirect(url_for('show_tally'))
 
 ### End Web Code ###
 
 ### Serial Code ###
 def update_sign(message):
-    ser = serial.Serial('/dev/ttyUSB0', 9600)
+    ser = serial.Serial(DEVICE, BAUDRATE)
     ser.write('<ID01>\r\n')
     time.sleep(1)
     ser.write('<ID01><PA><FQ><CC> %s \r\n' % message)
