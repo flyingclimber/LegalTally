@@ -5,7 +5,7 @@ from flask import Flask, request, session, g, redirect, url_for, \
 from contextlib import closing
 
 # configuration
-DATABASE = '/tmp/flaskr.db'
+DATABASE = '/tmp/legaltally.db'
 DEBUG = True
 SECRET_KEY = 'development key'
 USERNAME = 'admin'
@@ -40,14 +40,16 @@ def teardown_request(exception):
 ### Web Code ###
 @app.route('/')
 def show_tally():
-    return render_template('show_tally.html')
+    cur = g.db.execute('select approved, denied from tally')
+    entries = [dict(approved=row[0], denied=[row[1]]) for row in cur.fetchall()]
+    return render_template('show_tally.html', entries=entries)
 
 @app.route('/plus_one/<increment>', methods=['GET'])
 def plus_one(increment):
     if increment == 'approved':
-        g.db.execute('update tally set approved = approved + 1 where id = 2') ## BROKEN
+        g.db.execute('update tally set approved = approved + 1 where id = 1')
     if increment == 'denied':
-        g.db.execute('update tally set denied = denied + 1 where id = 2') ## BROKEN
+        g.db.execute('update tally set denied = denied + 1 where id = 1') 
     g.db.commit()
     flash('Tally Updated')
     return redirect(url_for('show_tally'))
