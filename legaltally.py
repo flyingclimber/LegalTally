@@ -1,5 +1,5 @@
 # all the imports
-import sqlite3
+import sqlite3, serial
 from flask import Flask, request, session, g, redirect, url_for, \
      abort, render_template, flash
 from contextlib import closing
@@ -37,6 +37,8 @@ def before_request():
 def teardown_request(exception):
     g.db.close()
 
+### End DB Section ###
+
 ### Web Code ###
 @app.route('/')
 def show_tally():
@@ -52,7 +54,19 @@ def plus_one(increment):
         g.db.execute('update tally set denied = denied + 1 where id = 1') 
     g.db.commit()
     flash('Tally Updated')
+    update_sign();
     return redirect(url_for('show_tally'))
+
+### End Web Code ###
+
+### Serial Code ###
+def update_sign():
+    serial = serial.Serial('/dev/tty.PL2303-000013FA', 9600)
+    serial.write('<ID01>')
+    serial.write('<ID01><PA><FQ><CC>Approved: X Denied: X')
+    seriial.close()
+
+#### End Serial Code ###
 
 if __name__ == '__main__':
     app.run()
