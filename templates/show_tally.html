@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
-<a href="{{ url_for('plus_one')}}/approved" method=get>approved</a>
-<a href="{{ url_for('plus_one')}}/denied" method=get>denied</a>
+    <a href="{{ url_for('plus_one', increment='approved') }}" method=get>approved</a>
+    <a href="{{ url_for('plus_one', increment='denied') }}" method=get>denied</a>
 {% endblock %}
 

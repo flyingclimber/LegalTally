@@ -42,13 +42,13 @@ def teardown_request(exception):
 def show_tally():
     return render_template('show_tally.html')
 
-@app.route('/plus_one/<increment>')
+@app.route('/plus_one/<increment>', methods=['GET'])
 def plus_one(increment):
     if increment == 'approved':
         g.db.execute('update tally set approved = approved + 1 where id = 2') ## BROKEN
     if increment == 'denied':
         g.db.execute('update tally set denied = denied + 1 where id = 2') ## BROKEN
-    d.db.commit()
+    g.db.commit()
     flash('Tally Updated')
     return redirect(url_for('show_tally'))
 
