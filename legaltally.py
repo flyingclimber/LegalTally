@@ -88,11 +88,14 @@ def reset():
 ### Serial Code ###
 def update_sign(message):
     '''Take the incoming message and send it to the sign'''
-    ser = serial.Serial(DEVICE, BAUD_RATE)
-    ser.write('<ID01>\r\n')
-    time.sleep(1)
-    ser.write('<ID01><PA><CI><FX> %s / \r\n' % message)
-    ser.close()
+    try:
+        ser = serial.Serial(DEVICE, BAUD_RATE)
+        ser.write('<ID01>\r\n')
+        time.sleep(1)
+        ser.write('<ID01><PA><CI><FX> %s / \r\n' % message)
+        ser.close()
+    except IOError:
+        flash('Couldn\'t update sign')
 
 #### End Serial Code ###
 
