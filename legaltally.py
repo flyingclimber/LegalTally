@@ -4,7 +4,7 @@ import sqlite3, serial, time
 from flask import Flask, g, redirect, url_for, render_template, flash
 from contextlib import closing
 
-# configuration
+### Configuration ###
 DATABASE = '/tmp/legaltally.db'
 DEBUG = True
 SECRET_KEY = 'development key'
@@ -12,6 +12,8 @@ USERNAME = 'admin'
 PASSWORD = 'default'
 DEVICE = '/dev/ttyUSB0'
 BAUD_RATE = 9600
+
+### End of Configuration ###
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -25,12 +27,12 @@ def init_db():
         db.commit()
 
 def connect_db():
-    '''Open a db connection'''
+    '''Open the configured DB'''
     return sqlite3.connect(app.config['DATABASE'])
 
-### end db section ###
+### End DB Section ###
 
-### web code ###
+### Web Code ###
 @app.before_request
 def before_request():
     '''Open a db connection before the web view is served'''
@@ -82,12 +84,17 @@ def reset():
     update_sign("Approved: 0 Denied: 0")
     return redirect(url_for('show_tally'))
 
-
+@app.route('/new_metric', methods=['POST'])
+def new_metric():
+    '''Add a new metric to the db'''
+    ''' g.db.execute('insert into tally values blah blah')  '''
+    return render_template('show_tally.html')
+    
 ### End Web Code ###
 
 ### Serial Code ###
 def update_sign(message):
-    '''Take the incoming message and send it to the sign'''
+    '''Take the incoming message and send it to the sign over serial'''
     try:
         ser = serial.Serial(DEVICE, BAUD_RATE)
         ser.write('<ID01>\r\n')
