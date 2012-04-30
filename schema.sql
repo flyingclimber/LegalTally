@@ -1,7 +1,6 @@
 drop table if exists tally;
 create table tally (
-    id integer,
-    received integer,
-    denied integer
+    id integer primary key auto_increment,
+    text varchar(255),
+    count integer
 );
-insert into tally values (1,0,0);

@@ -20,7 +20,7 @@
 '''
 
 import sqlite3, serial, time
-from flask import Flask, g, redirect, url_for, render_template, flash
+from flask import Flask, g, redirect, url_for, render_template, flash, request
 from contextlib import closing
 
 app = Flask(__name__)
@@ -63,21 +63,23 @@ def not_found(error):
 @app.route('/')
 def show_tally():
     '''Show the default tally web view'''
-    cur = g.db.execute('select received, denied from tally')
-    entries = [dict(received=row[0], denied=row[1]) for row in cur.fetchall()]
+    cur = g.db.execute('select text, count from tally order by id')
+    entries = [dict(text=row[0], count=row[1]) for row in cur.fetchall()]
     return render_template('show_tally.html', entries=entries)
 
-@app.route('/plus_one/<increment>', methods=['GET'])
-def plus_one(increment):
-    '''Increment either the received or denied counter and update the sign'''
-    if increment == 'received':
-        g.db.execute('update tally set received = received + 1 where id = 1')
-    if increment == 'denied':
-        g.db.execute('update tally set denied = denied + 1 where id = 1') 
-    g.db.commit()
+@app.route('/plus_one/<key>', methods=['GET'])
+def plus_one(key):
+    '''Increment the counter for the specified token'''
+    cur = g.db.execute('select id from tally where text = \'%s\'' % key)
+    key_id = cur.fetchone()
+    if key_id is None:
+        flash('Invalid key')
+    else:
+        g.db.execute('update tally set count = count + 1 where id = \'%s\'' % key_id)
+        g.db.commit()
+        flash('Tally Updated')
 
-    flash('Tally Updated')
-    cur = g.db.execute('select received, denied from tally')
+    cur = g.db.execute('select text, count from tally order by id')
     entries = [dict(received=row[0], denied=row[1]) for row in cur.fetchall()]
     update_sign("Approved: %s Denied: %s" % 
             (entries[0]['received'], entries[0]['denied']))
@@ -86,7 +88,7 @@ def plus_one(increment):
 @app.route('/reset')
 def reset():
     '''Reset the counter and update the sign'''
-    g.db.execute('update tally set received = 0, denied = 0 where id = 1')
+    g.db.execute('update tally set count = 0')
     g.db.commit()
     flash('Tally Reset')
     update_sign("Approved: 0 Denied: 0")
@@ -95,8 +97,11 @@ def reset():
 @app.route('/new_metric', methods=['POST'])
 def new_metric():
     '''Add a new metric to the db'''
-    ''' g.db.execute('insert into tally values blah blah')  '''
-    return render_template('show_tally.html')
+    g.db.execute('insert into tally (text, count) values (?, ?)', 
+            [request.form['metric'], 0])
+    g.db.commit()
+    flash('Added new tally')
+    return redirect(url_for('show_tally'))
     
 ### End Web Code ###
 
