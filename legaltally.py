@@ -4,19 +4,8 @@ import sqlite3, serial, time
 from flask import Flask, g, redirect, url_for, render_template, flash
 from contextlib import closing
 
-### Configuration ###
-DATABASE = '/tmp/legaltally.db'
-DEBUG = True
-SECRET_KEY = 'development key'
-USERNAME = 'admin'
-PASSWORD = 'default'
-DEVICE = '/dev/ttyUSB0'
-BAUD_RATE = 9600
-
-### End of Configuration ###
-
 app = Flask(__name__)
-app.config.from_object(__name__)
+app.config.from_pyfile('default_settings.py')
 
 ### DB section ###
 def init_db():
