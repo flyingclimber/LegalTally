@@ -75,7 +75,8 @@ def plus_one(key):
     if key_id is None:
         flash('Invalid key')
     else:
-        g.db.execute('update tally set count = count + 1 where id = \'%s\'' % key_id)
+        g.db.execute('update tally set count = count + 1 where id = \'%s\'' 
+                % key_id)
         g.db.commit()
         flash('Tally Updated')
 
@@ -93,6 +94,19 @@ def reset():
     flash('Tally Reset')
     update_sign("Approved: 0 Denied: 0")
     return redirect(url_for('show_tally'))
+
+@app.route('/delete/<key>', methods=['GET'])
+def delete(key):
+    '''Delete the given count'''
+    cur = g.db.execute('select id from tally where text = \'%s\'' % key)
+    key_id = cur.fetchone()
+    if key_id is None:
+        flash('Invalid key')
+    else:
+        g.db.execute('delete from tally where id = \'%s\'' % key_id)
+        g.db.commit()
+        flash('Deleted key')
+        return redirect(url_for('show_tally'))
 
 @app.route('/new_metric', methods=['POST'])
 def new_metric():
