@@ -68,8 +68,8 @@ def show_tally():
             for row in cur.fetchall()]
     return render_template('show_tally.html', entries=entries)
 
-@app.route('/plus_one/<key>', methods=['GET'])
-def plus_one(key):
+@app.route('/increment/<key>', methods=['GET'])
+def increment(key):
     '''Increment the counter for the specified token'''
     if key is None:
         flash('Invalid key')
