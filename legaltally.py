@@ -19,7 +19,7 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''
 
-import sqlite3, serial, time
+import sqlite3, serial, time, ProLite
 from flask import Flask, g, redirect, url_for, render_template, flash, request
 from contextlib import closing
 
@@ -100,6 +100,7 @@ def delete(key):
         g.db.execute('delete from tally where id = \'%s\'' % key)
         g.db.commit()
         flash('Deleted key')
+        update_sign()
         return redirect(url_for('show_tally'))
 
 @app.route('/new_metric', methods=['POST'])
@@ -120,6 +121,11 @@ def update_sign(message=None):
         Take the incoming message and send it to the sign over serial. 
         If no message it set then lookup the strings in the db
     '''
+    unit = ProLite.UNIT
+    page = ProLite.PAGE_1
+    color = ProLite.LIME
+    speed = ProLite.SPEED_1
+
     if message == None:
         message = ''
         cur = g.db.execute('select text, count from tally order by id')
@@ -128,12 +134,13 @@ def update_sign(message=None):
         for entry in entries:
             message = "%s %s %s : %s" % (message, divider, 
                     entry['text'], entry['count'])
-        flash(message)
     try:
+        message = "%s %s %s %s %s" % (unit, page, color, speed, message)
+        flash("Sending %s" % message)
         ser = serial.Serial(app.config['DEVICE'], app.config['BAUD_RATE'])
-        ser.write('<ID01>\r\n')
+        ser.write('%s\r\n' % ProLite.UNIT)
         time.sleep(1)
-        ser.write('<ID01><PA><CI><FX> %s / \r\n' % message)
+        ser.write('%s / \r\n' % message)
         ser.close()
     except IOError:
         flash('Couldn\'t update sign')
