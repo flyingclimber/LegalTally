@@ -9,6 +9,7 @@
     </ul>
     <p>
     <a href="{{ url_for('reset') }}" method=get>reset</a>
+    <a href="{{ url_for('refresh') }}" method=get>refresh</a>
     <div>
         <form action="{{url_for('new_metric')}}" method=post> 
             <input type=text name=metric />
@@ -16,4 +17,3 @@
         </form>
     </div>
 {% endblock %}
-

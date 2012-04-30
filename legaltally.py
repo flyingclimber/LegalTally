@@ -112,7 +112,13 @@ def new_metric():
     update_sign()
     flash('Added new tally')
     return redirect(url_for('show_tally'))
-    
+
+@app.route('/refersh')
+def refresh():
+    '''Refresh the display on the sign'''
+    update_sign()
+    return redirect(url_for('show_tally'))
+
 ### End Web Code ###
 
 ### Serial Code ###
