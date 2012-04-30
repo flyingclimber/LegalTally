@@ -1,0 +1,1 @@
+LegalTally is python flask based application that takes user input and sends it to a ProLite Led sign over serial.
