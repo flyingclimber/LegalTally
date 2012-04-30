@@ -85,7 +85,7 @@ def new_metric():
 def update_sign(message):
     '''Take the incoming message and send it to the sign over serial'''
     try:
-        ser = serial.Serial(DEVICE, BAUD_RATE)
+        ser = serial.Serial(app.config['DEVICE'], app.config['BAUD_RATE'])
         ser.write('<ID01>\r\n')
         time.sleep(1)
         ser.write('<ID01><PA><CI><FX> %s / \r\n' % message)
