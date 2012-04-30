@@ -79,10 +79,7 @@ def plus_one(key):
         g.db.commit()
         flash('Tally Updated')
 
-    cur = g.db.execute('select text, count from tally order by id')
-    entries = [dict(received=row[0], denied=row[1]) for row in cur.fetchall()]
-    update_sign("Approved: %s Denied: %s" % 
-            (entries[0]['received'], entries[0]['denied']))
+    update_sign()
     return redirect(url_for('show_tally'))
 
 @app.route('/reset')
@@ -91,7 +88,7 @@ def reset():
     g.db.execute('update tally set count = 0')
     g.db.commit()
     flash('Tally Reset')
-    update_sign("Approved: 0 Denied: 0")
+    update_sign()
     return redirect(url_for('show_tally'))
 
 @app.route('/delete/<key>', methods=['GET'])
@@ -111,14 +108,27 @@ def new_metric():
     g.db.execute('insert into tally (text, count) values (?, ?)', 
             [request.form['metric'], 0])
     g.db.commit()
+    update_sign()
     flash('Added new tally')
     return redirect(url_for('show_tally'))
     
 ### End Web Code ###
 
 ### Serial Code ###
-def update_sign(message):
-    '''Take the incoming message and send it to the sign over serial'''
+def update_sign(message=None):
+    '''
+        Take the incoming message and send it to the sign over serial. 
+        If no message it set then lookup the strings in the db
+    '''
+    if message == None:
+        message = ''
+        cur = g.db.execute('select text, count from tally order by id')
+        entries = [dict(text=row[0], count=row[1]) for row in cur.fetchall()]
+        divider = " / "
+        for entry in entries:
+            message = "%s %s %s : %s" % (message, divider, 
+                    entry['text'], entry['count'])
+        flash(message)
     try:
         ser = serial.Serial(app.config['DEVICE'], app.config['BAUD_RATE'])
         ser.write('<ID01>\r\n')
