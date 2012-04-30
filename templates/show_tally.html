@@ -3,8 +3,8 @@
     <ul>
         {% for entry in entries %}
         <li><h2>{{ entry.text }}</h2>{{ entry.count }}
-            <a href="{{ url_for('plus_one', key=entry.text)}}">+1</a>
-            <a href="{{ url_for('delete', key=entry.text)}}">Delete</a>
+            <a href="{{ url_for('plus_one', key=entry.id)}}">+1</a>
+            <a href="{{ url_for('delete', key=entry.id)}}">Delete</a>
         {% endfor %}
     </ul>
     <p>

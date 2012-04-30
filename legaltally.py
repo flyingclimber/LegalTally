@@ -29,10 +29,10 @@ app.config.from_pyfile('default_settings.py')
 ### DB section ###
 def init_db():
     '''Create the initial db'''
-    with closing(connect_db()) as db:
+    with closing(connect_db()) as db_:
         with app.open_resource('schema.sql') as f:
-            db.cursor().executescript(f.read())
-        db.commit()
+            db_.cursor().executescript(f.read())
+        db_.commit()
 
 def connect_db():
     '''Open the configured DB'''
@@ -63,20 +63,19 @@ def not_found(error):
 @app.route('/')
 def show_tally():
     '''Show the default tally web view'''
-    cur = g.db.execute('select text, count from tally order by id')
-    entries = [dict(text=row[0], count=row[1]) for row in cur.fetchall()]
+    cur = g.db.execute('select text, count, id from tally order by id')
+    entries = [dict(text=row[0], count=row[1], id=row[2]) 
+            for row in cur.fetchall()]
     return render_template('show_tally.html', entries=entries)
 
 @app.route('/plus_one/<key>', methods=['GET'])
 def plus_one(key):
     '''Increment the counter for the specified token'''
-    cur = g.db.execute('select id from tally where text = \'%s\'' % key)
-    key_id = cur.fetchone()
-    if key_id is None:
+    if key is None:
         flash('Invalid key')
     else:
         g.db.execute('update tally set count = count + 1 where id = \'%s\'' 
-                % key_id)
+                % key)
         g.db.commit()
         flash('Tally Updated')
 
@@ -98,12 +97,10 @@ def reset():
 @app.route('/delete/<key>', methods=['GET'])
 def delete(key):
     '''Delete the given count'''
-    cur = g.db.execute('select id from tally where text = \'%s\'' % key)
-    key_id = cur.fetchone()
-    if key_id is None:
+    if key is None:
         flash('Invalid key')
     else:
-        g.db.execute('delete from tally where id = \'%s\'' % key_id)
+        g.db.execute('delete from tally where id = \'%s\'' % key)
         g.db.commit()
         flash('Deleted key')
         return redirect(url_for('show_tally'))
