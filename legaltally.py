@@ -141,7 +141,7 @@ def update_sign(message=None):
             message = "%s %s %s : %s" % (message, divider, 
                     entry['text'], entry['count'])
     try:
-        message = "%s %s %s %s %s" % (unit, page, color, speed, message)
+        message = "%s%s%s%s %s" % (unit, page, color, speed, message)
         flash("Sending %s" % message)
         ser = serial.Serial(app.config['DEVICE'], app.config['BAUD_RATE'])
         ser.write('%s\r\n' % ProLite.UNIT)
