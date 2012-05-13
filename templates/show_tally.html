@@ -13,6 +13,21 @@
     <div>
         <form action="{{url_for('new_metric')}}" method=post> 
             <input type=text name=metric />
+            <select name="color">
+            {% for color in colors %}
+                <option value="{{ color.value }}">{{ color }}</option>
+            {% endfor %}
+            </select>
+            <select name="format">
+            {% for format in formats %}
+                <option value="{{ format.value }}">{{ format }}</option>
+            {% endfor %}
+            </select>
+            <select name="function">
+            {% for function in functions %}
+                <option value="{{ function.value }}">{{ function }}</option>
+            {% endfor %}
+            </select>
             <input type=submit value=Send />
         </form>
     </div>

@@ -66,7 +66,11 @@ def show_tally():
     cur = g.db.execute('select text, count, id from tally order by id')
     entries = [dict(text=row[0], count=row[1], id=row[2]) 
             for row in cur.fetchall()]
-    return render_template('show_tally.html', entries=entries)
+    colors = ProLite.ProLite.colors
+    formats = ProLite.ProLite.formats
+    functions = ProLite.ProLite.functions
+    return render_template('show_tally.html', entries=entries, colors=colors, 
+                                                formats=formats, functions=functions)
 
 @app.route('/increment/<key>', methods=['GET'])
 def increment(key):
@@ -127,10 +131,10 @@ def update_sign(message=None):
         Take the incoming message and send it to the sign over serial. 
         If no message it set then lookup the strings in the db
     '''
-    unit = ProLite.UNIT
-    page = ProLite.PAGE_1
-    color = ProLite.LIME
-    speed = ProLite.SPEED_1
+    unit = 'ProLite.UNIT'
+    page = 'ProLite.PAGE_1'
+    color = 'LIME'
+    speed = 'SPEED_1'
 
     if message == None:
         message = ''
